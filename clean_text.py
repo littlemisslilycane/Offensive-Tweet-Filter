@@ -1,4 +1,3 @@
-#code modified from https://www.analyticsvidhya.com/blog/2018/07/hands-on-sentiment-analysis-dataset-python/
 import math
 import pandas as pd
 import numpy as np
@@ -35,10 +34,10 @@ def get_tweet_tuples(csv_path: str) -> tuple:
     tokenized_tweet.head()
 
     # stemming (strip suffixes)
-    stemmer = PorterStemmer()
+    # stemmer = PorterStemmer()
 
-    tokenized_tweet = tokenized_tweet.apply(lambda x: [stemmer.stem(i) for i in x])
-    tokenized_tweet.head()
+    # tokenized_tweet = tokenized_tweet.apply(lambda x: [stemmer.stem(i) for i in x])
+    # tokenized_tweet.head()
 
     # combine back together
     for i in range(len(tokenized_tweet)):
@@ -46,12 +45,12 @@ def get_tweet_tuples(csv_path: str) -> tuple:
 
     combi['tidy_tweet'] = tokenized_tweet
 
-    tweet_tuples = ()
+    tweet_tuples = []
     if 'label' in combi:
         for i in range(len(combi)):
-            tweet_tuples += (int(combi.loc[i, "label"]), combi.loc[i, "tidy_tweet"])
+            tweet_tuples.append((int(combi.loc[i, "label"]), combi.loc[i, "tidy_tweet"]))
     else:
         for i in range(len(combi)):
-            tweet_tuples += (math.nan, combi.loc[i, "tidy_tweet"])
+            tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"]))
 
     return tweet_tuples
