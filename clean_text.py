@@ -1,4 +1,4 @@
-import math
+#reference for pruning steps: https://www.analyticsvidhya.com/blog/2018/07/hands-on-sentiment-analysis-dataset-python/
 import pandas as pd
 import numpy as np
 import warnings
@@ -48,9 +48,9 @@ def get_tweet_tuples(csv_path: str) -> tuple:
     tweet_tuples = []
     if 'label' in combi:
         for i in range(len(combi)):
-            tweet_tuples.append((int(combi.loc[i, "label"]), combi.loc[i, "tidy_tweet"]))
+            tweet_tuples.append((int(combi.loc[i, "label"]), combi.loc[i, "tidy_tweet"], combi.loc[i, 'tweet']))
     else:
         for i in range(len(combi)):
-            tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"]))
+            tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"], combi.loc[i,'tweet']))
 
     return tweet_tuples
