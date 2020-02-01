@@ -2,10 +2,10 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import cross_validate, LeaveOneOut, KFold
 from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
-
+import  numpy as np
 
 # Create a feature representation
-def get_features(corpus, type):
+def get_features(corpus, type, vocab):
     labels = []
     tweets = []
     for tweet in corpus:
@@ -13,11 +13,16 @@ def get_features(corpus, type):
         if type == 'train':
             labels.append(tweet[0])
 
-    vectorizer = TfidfVectorizer(stop_words='english')
-    features = vectorizer.fit_transform(tweets)
-    vocab = vectorizer.get_feature_names()
     if type == 'train':
-        return features, labels, vocab
+        vectorizer = TfidfVectorizer(stop_words='english')
+        features = vectorizer.fit_transform(tweets)
+        vocabulary = vectorizer.get_feature_names()
+        features = vectorizer.fit_transform(tweets)
+    if type == 'test':
+        vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocab)
+        features = vectorizer.fit_transform(tweets)
+    if type == 'train':
+        return features, labels, vocabulary
     else:
         return features, vocab
 
@@ -45,11 +50,24 @@ def build_model(features, labels, vocabulary):
 
     return model
 
+    print('tested')
 
+
+def predict(features, model):
+
+    prediction = model.predict_proba(features)
+    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 than 1 else 0
+    prediction_int = prediction_int.astype(np.int)
+
+    print('prediction done')
+
+
+
+vocab = []
 train_data = get_tweet_tuples('train-tweets.csv')
-features, labels, vocab = get_features(train_data, 'train')
+features, labels, vocab = get_features(train_data, 'train','')
 model = build_model(features, labels, vocab)
 test_data = get_tweet_tuples('test-tweets.csv')
-features, vocab = get_features(test_data, 'test')
-
+features_test, vocab = get_features(test_data, 'test', vocab)
+predict(features_test, model)
 print('Done')
