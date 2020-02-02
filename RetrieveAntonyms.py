@@ -4,7 +4,9 @@ from nltk.corpus import wordnet
 
 antonyms = []
 
+print()
 for syn in wordnet.synsets("regretful"):
+
     for l in syn.lemmas():
         if l.antonyms():
             antonyms.append(l.antonyms()[0].name())
