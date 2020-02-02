@@ -1,5 +1,5 @@
-tuple1 = (
-    'these dumb comments from the failed republican candidate for governor of new york in 2010, #carlpaladino #dumb.', 'dumb','failed')
+# tuple1 = (
+#     'these dumb comments from the failed republican candidate for governor of new york in 2010, #carlpaladino #dumb.', 'dumb','failed')
 
 import random
 import re
@@ -60,15 +60,13 @@ funny = ['aardvark', 'abacus', 'abundance', 'ache', 'acupuncture',
          'waffle', 'wallet', 'walnut', 'wagon', 'window', 'whatever',
          'whimsical', 'winky', 'wobbly', 'yellow', 'zap', 'zebra', 'zigzag', 'zip',
          ]
-
-print(tuple1)
-data = tuple1[0]
-for i in range(len(tuple1) - 1):
-    foul = tuple1[i+1]
-    foul_replace = (' '.join(random.sample(funny, random.randint(2, 2))))
-    print(foul_replace)
+def more_funny(tuple1: tuple) -> str:
+    data = tuple1[0]
+    for i in range(len(tuple1) - 1):
+        foul = tuple1[i+1]
+        foul_replace = (' '.join(random.sample(funny, random.randint(2, 2))))
     if foul in data:
         foul_replace_hashtag = '#' + foul_replace.replace(" ", '_')
         data = re.sub('#{0}'.format(foul), foul_replace_hashtag, data)
         data = data.replace(foul, foul_replace)
-        print(data)
+    return data
