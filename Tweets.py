@@ -80,31 +80,27 @@ def predict(features, model, tweets, vocab):
     return finalTweets
 
 
-def predict2(features, model, tweets, vocab):
+def predict2(features, model, tweet, vocab):
     prediction = model.predict_proba(features)
-    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 then 1(offensive) else 0
-    prediction_int = prediction_int.astype(np.int)
-    result = []
-    finalTweets = []
-    i = 0
-    for p in prediction_int:
-        if p == 1:
-            result.append(tweets[i][2])
-            smax = -sys.maxsize - 1
-            index = 0
-            j = 0
-            for word in tweets[i][1].split():
-                if word in vocab:
-                    wordIndex = vocab.index(word)
-                    si = model.coef_[0][wordIndex]
-                    if si > smax:
-                        smax = si
-                        index = j
-                j = j + 1
-            finalTweets.append((tweets[i][2], tweets[i][1].split()[index]))
-        i = i + 1
+    offensive = False
+    if prediction >= 0.3:
+        offensive = True
 
-    return finalTweets
+    if offensive:
+        smax = -sys.maxsize - 1
+        index = 0
+        j = 0
+        for word in tweet.split():
+            if word in vocab:
+                wordIndex = vocab.index(word)
+                si = model.coef_[0][wordIndex]
+                if si > smax:
+                    smax = si
+                    index = j
+            j = j + 1
+        return tweet.split()[index]
+
+    return ""
 
 
 def main():
