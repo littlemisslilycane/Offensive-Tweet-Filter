@@ -4,54 +4,43 @@ from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
 import numpy as np
 
-
-# Create a feature representation
-def get_features(corpus, type, vocab):
+def get_basic_features(corpus):
     labels = []
     tweets = []
     for tweet in corpus:
         tweets.append(tweet[1])
-        if type == 'train':
-            labels.append(tweet[0])
-
-    if type == 'train':
-        vectorizer = TfidfVectorizer(stop_words='english')
-        features = vectorizer.fit_transform(tweets)
-        vocabulary = vectorizer.get_feature_names()
-        features = vectorizer.fit_transform(tweets)
-    if type == 'test':
-        vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocab)
-        features = vectorizer.fit_transform(tweets)
-    if type == 'train':
-        return features, labels, vocabulary
-    else:
-        return features, vocab
+        labels.append(tweet[0])
+    return tweets, labels
 
 
-# Construct the model and add the feature
-def build_model(features, labels, vocabulary):
-    print('Building the model')
+def run(train_data, test_data):
     model = LogisticRegression(penalty="l2", solver="liblinear")
+    train_tweets, labels = get_basic_features(train_data)
+    vectorizer = TfidfVectorizer( token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+')
+    features = vectorizer.fit_transform(train_tweets)
+    vocabulary = vectorizer.get_feature_names()
 
-    results = cross_validate(model, features, labels, cv=KFold(n_splits=10, shuffle=True, random_state=1))
-    scores = results["test_score"]
+    train_results = cross_validate(model, features, labels, cv=KFold(n_splits=10, shuffle=True, random_state=1))
+    scores = train_results["test_score"]
     avg_score = sum(scores) / len(scores)
     model.fit(features, labels)
     print("The model's average accuracy is %f" % avg_score)
 
     neg_class_prob_sorted = model.coef_[0, :].argsort()
     pos_class_prob_sorted = (-model.coef_[0, :]).argsort()
-
-    termsToTake = 3
+    termsToTake = 10
     pos_indicators = [vocabulary[i] for i in neg_class_prob_sorted[:termsToTake]]
     neg_indicators = [vocabulary[i] for i in pos_class_prob_sorted[:termsToTake]]
-
     print("The most informative terms for pos are: %s" % pos_indicators)
     print("The most informative terms for neg are: %s" % neg_indicators)
 
-    return model
+    # predictions
 
-    print('tested')
+    test_tweets, vocab = get_basic_features(test_data)
+    vectorizer = TfidfVectorizer(stop_words='english', vocabulary = vocabulary)
+    features = vectorizer.fit_transform(test_tweets)
+
+    print(predict(features, model, test_data))
 
 
 def predict(features, model, tweets):
@@ -69,9 +58,5 @@ def predict(features, model, tweets):
 
 
 train_data = get_tweet_tuples('train-tweets.csv')
-features, labels, vocab = get_features(train_data, 'train', '')
-model = build_model(features, labels, vocab)
 test_data = get_tweet_tuples('test-tweets.csv')
-features_test, vocab = get_features(test_data, 'test', vocab)
-results = predict(features_test, model, test_data)
-print('Done')
+run(train_data, test_data)
