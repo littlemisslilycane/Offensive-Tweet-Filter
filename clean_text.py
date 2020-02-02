@@ -54,11 +54,3 @@ def get_tweet_tuples(csv_path: str) -> tuple:
             tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"], combi.loc[i,'tweet']))
 
     return tweet_tuples
-
-#
-# def main():
-#     resu = get_tweet_tuples(".csv")
-#     print(resu)
-#
-# if __name__== "__main__":
-#   main()
