@@ -14,6 +14,7 @@ def my_form_post():
     text = request.form['text']
     if request.form['submit'] == 'Funny':
         return get_text_features(text)
+        #render_template('form.html', ]))
     elif request.form['submit'] == 'Opposite':
         return ''
     else:
