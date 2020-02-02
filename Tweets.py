@@ -18,8 +18,15 @@ def get_basic_features(corpus):
 
 
 def get_text_features(text):
+
+    model = pickle.load(open('model.sav', 'rb'))
+    vocabulary = get_vocabulary()
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
-    features = vectorizer.fit_transform(text)
+    textArray = []
+    textArray.append(text)
+    features = vectorizer.fit_transform(textArray)
+    predict2(features,model,text,vocabulary)
+
 
 
 def run(train_data, test_data):
@@ -43,7 +50,15 @@ def run(train_data, test_data):
     print("The most informative terms for pos are: %s" % pos_indicators)
     print("The most informative terms for neg are: %s" % neg_indicators)
     pickle.dump(model, open('model.sav', 'wb'))
+    save_vocabulary(vocabulary)
+
+
+
     # predictions
+
+    model = pickle.load(open('model.sav', 'rb'))
+    vocabulary = get_vocabulary()
+
     test_tweets, vocab = get_basic_features(test_data)
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
     features = vectorizer.fit_transform(test_tweets)
@@ -105,6 +120,20 @@ def predict2(features, model, tweets, vocab):
 
     return finalTweets
 
+def save_vocabulary(vocabulary):
+
+    with open('vocabulary.txt', 'w') as filehandle:
+        for item in vocabulary:
+            filehandle.write('%s\n' % item)
+
+def get_vocabulary():
+    vocabulary = []
+    with open('vocabulary.txt', 'r') as filehandle:
+        for line in filehandle:
+            currentPlace = line[:-1]
+            vocabulary.append(currentPlace)
+    return vocabulary
+
 
 def main():
     train_data = get_tweet_tuples('train-tweets.csv')
@@ -120,4 +149,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    text = "chick gets fucked hottest naked lady"
+    get_text_features(text)
