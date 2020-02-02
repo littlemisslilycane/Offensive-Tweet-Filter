@@ -6,7 +6,7 @@ from RetrieveAntonyms import retrieve_antonym
 import numpy as np
 import sys
 import pickle
-
+from  clean_text import  *
 
 def get_basic_features(corpus):
     labels = []
@@ -18,21 +18,21 @@ def get_basic_features(corpus):
 
 
 def get_text_features(text):
-
+    text = get_tweet_tuple(text)[1]
     model = pickle.load(open('model.sav', 'rb'))
     vocabulary = get_vocabulary()
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
     textArray = []
     textArray.append(text)
     features = vectorizer.fit_transform(textArray)
-    predict2(features,model,text,vocabulary)
+    return predict2(features,model,text,vocabulary)
 
 
 
 def run(train_data, test_data):
     model = LogisticRegression(penalty="l2", solver="liblinear")
     train_tweets, labels = get_basic_features(train_data)
-    vectorizer = CountVectorizer(token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+',
+    vectorizer = TfidfVectorizer(token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+',
                                  stop_words='english')
     features = vectorizer.fit_transform(train_tweets)
     vocabulary = vectorizer.get_feature_names()
@@ -84,6 +84,7 @@ def predict(features, model, tweets, vocab):
                 if word in vocab:
                     wordIndex = vocab.index(word)
                     si = model.coef_[0][wordIndex]
+                    print(word, si)
                     if si > smax:
                         smax = si
                         index = j
@@ -94,31 +95,28 @@ def predict(features, model, tweets, vocab):
     return finalTweets
 
 
-def predict2(features, model, tweets, vocab):
+def predict2(features, model, tweet, vocab):
     prediction = model.predict_proba(features)
-    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 then 1(offensive) else 0
-    prediction_int = prediction_int.astype(np.int)
-    result = []
-    finalTweets = []
-    i = 0
-    for p in prediction_int:
-        if p == 1:
-            result.append(tweets[i][2])
-            smax = -sys.maxsize - 1
-            index = 0
-            j = 0
-            for word in tweets[i][1].split():
-                if word in vocab:
-                    wordIndex = vocab.index(word)
-                    si = model.coef_[0][wordIndex]
-                    if si > smax:
-                        smax = si
-                        index = j
-                j = j + 1
-            finalTweets.append((tweets[i][2], tweets[i][1].split()[index]))
-        i = i + 1
+    offensive = False
+    if prediction[:, 1] >= 0.3:
+        offensive = True
 
-    return finalTweets
+    if offensive:
+        smax = -sys.maxsize - 1
+        index = 0
+
+        offensive_words = []
+        for word in tweet.split():
+
+            if word in vocab:
+                wordIndex = vocab.index(word)
+                si = model.coef_[0][wordIndex]
+                if si>0:
+                    offensive_words.append(word)
+
+        return offensive_words
+
+
 
 def save_vocabulary(vocabulary):
 
@@ -142,13 +140,15 @@ def main():
     pleasant_tweets = []
     for tweet in finalTweets:
         offensiveWord = tweet[1]
+        print(tweet, offensiveWord)
         antonym = retrieve_antonym(offensiveWord)
-        print(offensiveWord, ",", antonym)
+        # print(offensiveWord, ",", antonym)
         pleasant_tweets.append(tweet[0].replace(offensiveWord, antonym))
-    print(pleasant_tweets)
+    # print(pleasant_tweets)
 
 
 if __name__ == "__main__":
-    main()
-    text = "chick gets fucked hottest naked lady"
-    get_text_features(text)
+    # main()
+    text = "these  comments from the failed republican candidate for governor of new york in 2010, #carlpaladino."
+    offensiveWord = get_text_features(text)
+    print(offensiveWord)
