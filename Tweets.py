@@ -2,7 +2,8 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import cross_validate, LeaveOneOut, KFold
 from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
-import  numpy as np
+import numpy as np
+
 
 # Create a feature representation
 def get_features(corpus, type, vocab):
@@ -53,21 +54,26 @@ def build_model(features, labels, vocabulary):
     print('tested')
 
 
-def predict(features, model):
-
+def predict(features, model, tweets):
     prediction = model.predict_proba(features)
     prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 than 1 else 0
     prediction_int = prediction_int.astype(np.int)
+    result = []
+    i = 0
+    for p in prediction_int:
+        if p == 1:
+            result.append(tweets[i][2])
+        i = i + 1
+    return result
 
     print('prediction done')
 
 
-
 vocab = []
 train_data = get_tweet_tuples('train-tweets.csv')
-features, labels, vocab = get_features(train_data, 'train','')
+features, labels, vocab = get_features(train_data, 'train', '')
 model = build_model(features, labels, vocab)
 test_data = get_tweet_tuples('test-tweets.csv')
 features_test, vocab = get_features(test_data, 'test', vocab)
-predict(features_test, model)
+results = predict(features_test, model, test_data)
 print('Done')
