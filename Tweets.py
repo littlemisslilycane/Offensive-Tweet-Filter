@@ -6,8 +6,9 @@ from RetrieveAntonyms import retrieve_antonym
 import numpy as np
 import sys
 import pickle
-from  clean_text import  *
+from clean_text import *
 from MoreFunny import *
+
 
 def get_basic_features(corpus):
     labels = []
@@ -16,6 +17,7 @@ def get_basic_features(corpus):
         tweets.append(tweet[1])
         labels.append(tweet[0])
     return tweets, labels
+
 
 
 def get_text_features(text):
@@ -27,11 +29,14 @@ def get_text_features(text):
     textArray = []
     textArray.append(text)
     features = vectorizer.fit_transform(textArray)
-    tuple_result =  (original_tweet, predict2(features,model,text,vocabulary))
-    funny_tweet =more_funny(tuple_result)
-    print(funny_tweet)
-    return  funny_tweet
-
+    offensive_words = predict2(features, model, text, vocabulary)
+    if offensive_words:
+        tuple_result = (original_tweet, offensive_words)
+        funny_tweet = more_funny(tuple_result)
+        print(funny_tweet)
+        return funny_tweet
+    else:
+        return original_tweet
 
 
 def run(train_data, test_data):
@@ -56,8 +61,6 @@ def run(train_data, test_data):
     print("The most informative terms for neg are: %s" % neg_indicators)
     pickle.dump(model, open('model.sav', 'wb'))
     save_vocabulary(vocabulary)
-
-
 
     # predictions
 
@@ -116,18 +119,17 @@ def predict2(features, model, tweet, vocab):
             if word in vocab:
                 wordIndex = vocab.index(word)
                 si = model.coef_[0][wordIndex]
-                if si>0:
+                if si > 0:
                     offensive_words.append(word)
 
         return offensive_words
 
 
-
 def save_vocabulary(vocabulary):
-
     with open('vocabulary.txt', 'w') as filehandle:
         for item in vocabulary:
             filehandle.write('%s\n' % item)
+
 
 def get_vocabulary():
     vocabulary = []
@@ -147,13 +149,10 @@ def main():
         offensiveWord = tweet[1]
         print(tweet, offensiveWord)
         antonym = retrieve_antonym(offensiveWord)
-        # print(offensiveWord, ",", antonym)
         pleasant_tweets.append(tweet[0].replace(offensiveWord, antonym))
-    # print(pleasant_tweets)
 
 
 if __name__ == "__main__":
     # main()
-    text = "these  comments from the failed republican candidate for governor of new york in 2010, #carlpaladino."
+    text = "@user got my @user limited edition rain or shine set today!!  ! @user @user @user @user"
     offensiveWord = get_text_features(text)
-
