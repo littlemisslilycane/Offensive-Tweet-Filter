@@ -24,7 +24,7 @@ def get_tweet_tuples(csv_path: str) -> tuple:
     combi['tidy_tweet'] = np.vectorize(remove_pattern)(combi['tweet'], "@[\w]*")
 
     # remove special characters, numbers, punctuations
-    combi['tidy_tweet'] = combi['tidy_tweet'].str.replace("[^a-zA-Z#]", " ")
+    combi['tidy_tweet'] = combi['tidy_tweet'].str.replace("[^a-zA-Z]", " ")
 
     # remove words < 3 letters long
     combi['tidy_tweet'] = combi['tidy_tweet'].apply(lambda x: ' '.join([w for w in x.split() if len(w) > 3]))
@@ -54,3 +54,11 @@ def get_tweet_tuples(csv_path: str) -> tuple:
             tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"], combi.loc[i,'tweet']))
 
     return tweet_tuples
+
+#
+# def main():
+#     resu = get_tweet_tuples(".csv")
+#     print(resu)
+#
+# if __name__== "__main__":
+#   main()

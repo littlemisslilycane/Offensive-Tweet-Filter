@@ -3,6 +3,7 @@ from sklearn.model_selection import cross_validate, LeaveOneOut, KFold
 from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
 import numpy as np
+import sys
 
 
 # Create a feature representation
@@ -15,12 +16,13 @@ def get_features(corpus, type, vocab):
             labels.append(tweet[0])
 
     if type == 'train':
-        vectorizer = TfidfVectorizer(stop_words='english')
+        vectorizer = TfidfVectorizer(token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+', stop_words='english')
+        # vocab = list(filter(lambda word: re.match(".*[a-zA-Z].*", word) is not None, vectorizer.get_feature_names()))
         features = vectorizer.fit_transform(tweets)
         vocabulary = vectorizer.get_feature_names()
         features = vectorizer.fit_transform(tweets)
     if type == 'test':
-        vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocab)
+        vectorizer = TfidfVectorizer(vocabulary=vocab)
         features = vectorizer.fit_transform(tweets)
     if type == 'train':
         return features, labels, vocabulary
@@ -54,24 +56,45 @@ def build_model(features, labels, vocabulary):
     print('tested')
 
 
-def predict(features, model, tweets):
+def removeSpecialCharacters(word):
+    return word
+
+
+def predict(features, model, tweets, vocab):
     prediction = model.predict_proba(features)
-    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 than 1 else 0
+    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 then 1(offensive) else 0
     prediction_int = prediction_int.astype(np.int)
     result = []
+    finalTweets = []
     i = 0
     for p in prediction_int:
         if p == 1:
             result.append(tweets[i][2])
+            smax = -sys.maxsize - 1
+            index = 0
+            j = 0
+            for word in tweets[i][1].split():
+                if word in vocab:
+                    wordIndex = vocab.index(word)
+                    si = model.coef_[0][wordIndex]
+                    if si > smax:
+                        smax = si
+                        index = j
+                j = j + 1
+            finalTweets.append((tweets[i][2], tweets[i][1].split()[index]))
         i = i + 1
 
-    return result
+    return finalTweets
 
 
-train_data = get_tweet_tuples('train-tweets.csv')
-features, labels, vocab = get_features(train_data, 'train', '')
-model = build_model(features, labels, vocab)
-test_data = get_tweet_tuples('test-tweets.csv')
-features_test, vocab = get_features(test_data, 'test', vocab)
-results = predict(features_test, model, test_data)
-print('Done')
+def main():
+    train_data = get_tweet_tuples('train-tweets.csv')
+    features, labels, vocab = get_features(train_data, 'train', '')
+    model = build_model(features, labels, vocab)
+    test_data = get_tweet_tuples('test-tweets.csv')
+    features_test, vocab = get_features(test_data, 'test', vocab)
+    results = predict(features_test, model, test_data, vocab)
+    print(results)
+
+if __name__== "__main__":
+  main()
