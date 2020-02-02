@@ -2,8 +2,10 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import cross_validate, LeaveOneOut, KFold
 from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
+from RetrieveAntonyms import retrieve_antonym
 import numpy as np
 import sys
+import pickle
 
 
 def get_basic_features(corpus):
@@ -13,6 +15,18 @@ def get_basic_features(corpus):
         tweets.append(tweet[1])
         labels.append(tweet[0])
     return tweets, labels
+
+
+def get_text_features(text):
+
+    model = pickle.load(open('model.sav', 'rb'))
+    vocabulary = get_vocabulary()
+    vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
+    textArray = []
+    textArray.append(text)
+    features = vectorizer.fit_transform(textArray)
+    predict2(features,model,text,vocabulary)
+
 
 
 def run(train_data, test_data):
@@ -26,9 +40,8 @@ def run(train_data, test_data):
     train_results = cross_validate(model, features, labels, cv=KFold(n_splits=10, shuffle=True, random_state=1))
     scores = train_results["test_score"]
     avg_score = sum(scores) / len(scores)
-    model.fit(features, labels)
     print("The model's average accuracy is %f" % avg_score)
-
+    model.fit(features, labels)
     neg_class_prob_sorted = model.coef_[0, :].argsort()
     pos_class_prob_sorted = (-model.coef_[0, :]).argsort()
     termsToTake = 10
@@ -36,8 +49,15 @@ def run(train_data, test_data):
     neg_indicators = [vocabulary[i] for i in pos_class_prob_sorted[:termsToTake]]
     print("The most informative terms for pos are: %s" % pos_indicators)
     print("The most informative terms for neg are: %s" % neg_indicators)
+    pickle.dump(model, open('model.sav', 'wb'))
+    save_vocabulary(vocabulary)
+
+
 
     # predictions
+
+    model = pickle.load(open('model.sav', 'rb'))
+    vocabulary = get_vocabulary()
 
     test_tweets, vocab = get_basic_features(test_data)
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
@@ -74,11 +94,61 @@ def predict(features, model, tweets, vocab):
     return finalTweets
 
 
+def predict2(features, model, tweets, vocab):
+    prediction = model.predict_proba(features)
+    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 then 1(offensive) else 0
+    prediction_int = prediction_int.astype(np.int)
+    result = []
+    finalTweets = []
+    i = 0
+    for p in prediction_int:
+        if p == 1:
+            result.append(tweets[i][2])
+            smax = -sys.maxsize - 1
+            index = 0
+            j = 0
+            for word in tweets[i][1].split():
+                if word in vocab:
+                    wordIndex = vocab.index(word)
+                    si = model.coef_[0][wordIndex]
+                    if si > smax:
+                        smax = si
+                        index = j
+                j = j + 1
+            finalTweets.append((tweets[i][2], tweets[i][1].split()[index]))
+        i = i + 1
+
+    return finalTweets
+
+def save_vocabulary(vocabulary):
+
+    with open('vocabulary.txt', 'w') as filehandle:
+        for item in vocabulary:
+            filehandle.write('%s\n' % item)
+
+def get_vocabulary():
+    vocabulary = []
+    with open('vocabulary.txt', 'r') as filehandle:
+        for line in filehandle:
+            currentPlace = line[:-1]
+            vocabulary.append(currentPlace)
+    return vocabulary
+
+
 def main():
     train_data = get_tweet_tuples('train-tweets.csv')
     test_data = get_tweet_tuples('test-tweets.csv')
-    return run(train_data, test_data)
+    finalTweets = run(train_data, test_data)
+    pleasant_tweets = []
+    for tweet in finalTweets:
+        offensiveWord = tweet[1]
+        antonym = retrieve_antonym(offensiveWord)
+        print(offensiveWord, ",", antonym)
+        pleasant_tweets.append(tweet[0].replace(offensiveWord, antonym))
+    print(pleasant_tweets)
 
 
 if __name__ == "__main__":
-    print(main())
+    # main()
+    text = "chick gets fucked hottest naked lady"
+    get_text_features(text)
