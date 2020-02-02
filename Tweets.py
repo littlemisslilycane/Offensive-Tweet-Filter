@@ -29,14 +29,7 @@ def get_text_features(text):
     textArray = []
     textArray.append(text)
     features = vectorizer.fit_transform(textArray)
-    offensive_words = predict2(features, model, text, vocabulary)
-    if offensive_words:
-        tuple_result = (original_tweet, offensive_words)
-        funny_tweet = more_funny(tuple_result)
-        print(funny_tweet)
-        return funny_tweet
-    else:
-        return original_tweet
+    return predict2(features, model, text, vocabulary)
 
 
 def run(train_data, test_data):
@@ -154,5 +147,5 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    text = "@user got my @user limited edition rain or shine set today!!  ! @user @user @user @user"
+
     offensiveWord = get_text_features(text)
