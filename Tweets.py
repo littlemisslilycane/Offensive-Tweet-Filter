@@ -27,10 +27,7 @@ def get_text_features(text):
     textArray = []
     textArray.append(text)
     features = vectorizer.fit_transform(textArray)
-    tuple_result =  (original_tweet, predict2(features,model,text,vocabulary))
-    funny_tweet =more_funny(tuple_result)
-    print(funny_tweet)
-    return  funny_tweet
+    return predict2(features, model, text, vocabulary)
 
 
 
