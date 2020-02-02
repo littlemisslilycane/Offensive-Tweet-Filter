@@ -7,6 +7,7 @@ import numpy as np
 import sys
 import pickle
 from  clean_text import  *
+from MoreFunny import *
 
 def get_basic_features(corpus):
     labels = []
@@ -18,6 +19,7 @@ def get_basic_features(corpus):
 
 
 def get_text_features(text):
+    original_tweet = text
     text = get_tweet_tuple(text)[1]
     model = pickle.load(open('model.sav', 'rb'))
     vocabulary = get_vocabulary()
@@ -25,7 +27,10 @@ def get_text_features(text):
     textArray = []
     textArray.append(text)
     features = vectorizer.fit_transform(textArray)
-    return predict2(features,model,text,vocabulary)
+    tuple_result =  (original_tweet, predict2(features,model,text,vocabulary))
+    funny_tweet =more_funny(tuple_result)
+    print(funny_tweet)
+    return  funny_tweet
 
 
 
@@ -151,4 +156,4 @@ if __name__ == "__main__":
     # main()
     text = "these  comments from the failed republican candidate for governor of new york in 2010, #carlpaladino."
     offensiveWord = get_text_features(text)
-    print(offensiveWord)
+
