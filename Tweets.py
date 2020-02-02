@@ -32,7 +32,7 @@ def get_text_features(text):
 def run(train_data, test_data):
     model = LogisticRegression(penalty="l2", solver="liblinear")
     train_tweets, labels = get_basic_features(train_data)
-    vectorizer = TfidfVectorizer(token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+',
+    vectorizer = CountVectorizer(token_pattern=r'\b\w\w+\b|(?<!\w)@\w+|(?<!\w)#\w+',
                                  stop_words='english')
     features = vectorizer.fit_transform(train_tweets)
     vocabulary = vectorizer.get_feature_names()
@@ -149,6 +149,6 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
     text = "chick gets fucked hottest naked lady"
     get_text_features(text)
