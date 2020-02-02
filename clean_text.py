@@ -55,8 +55,6 @@ def get_tweet_tuples(csv_path: str) -> tuple:
     return tweet_tuples
 
 def get_tweet_tuple(tweet: str) -> str:
-    #31963,  # studiolife #aislife #requires #passion #dedication #willpower   to find #newmaterialsâ¦
-
     combi = tweet
 
     # remove unwanted text pattern from tweet
@@ -72,7 +70,7 @@ def get_tweet_tuple(tweet: str) -> str:
 
 
     # remove special characters, numbers, punctuations
-    combi = re.sub('[^A-Za-z0-9# ]+', "", combi)
+    combi = re.sub('[^A-Za-z0-9 ]+', "", combi)
 
     # remove words < 3 letters long
     combi = re.sub(r'\b\w{1,3}\b', "", combi)
