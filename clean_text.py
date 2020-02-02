@@ -7,7 +7,7 @@ from nltk.stem.porter import *
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-def get_tweet_tuples(csv_path: str) -> tuple:
+def get_tweet_tuples(csv_path: str) -> list:
 
     combi = pd.read_csv(csv_path)
 
@@ -54,7 +54,7 @@ def get_tweet_tuples(csv_path: str) -> tuple:
 
     return tweet_tuples
 
-def get_tweet_tuple(tweet: str) -> str:
+def get_tweet_tuple(tweet: str) -> list:
     combi = tweet
 
     # remove unwanted text pattern from tweet
