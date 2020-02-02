@@ -1,6 +1,6 @@
 #app.py
-from clean_text import get_tweet_tuple
 from flask import Flask, request, render_template  # import main Flask class and request object
+from Tweets import get_text_features
 
 app = Flask(__name__, template_folder='./templates') #create the Flask app
 
@@ -12,8 +12,12 @@ def my_form():
 @app.route('/', methods=['POST'])
 def my_form_post():
     text = request.form['text']
-    return text
-    #return get_tweet_tuple(text)
+    if request.form['submit'] == 'Funny':
+        return get_text_features(text)
+    elif request.form['submit'] == 'Opposite':
+        return ''
+    else:
+        return 'Invalid Request'
 
 # main driver function
 if __name__ == '__main__':
