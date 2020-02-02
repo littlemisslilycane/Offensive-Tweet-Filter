@@ -2,6 +2,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import cross_validate, LeaveOneOut, KFold
 from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
+from RetrieveAntonyms import retrieve_antonym
 import numpy as np
 import sys
 
@@ -13,6 +14,11 @@ def get_basic_features(corpus):
         tweets.append(tweet[1])
         labels.append(tweet[0])
     return tweets, labels
+
+
+def get_text_features(text):
+    vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
+    features = vectorizer.fit_transform(text)
 
 
 def run(train_data, test_data):
@@ -74,11 +80,45 @@ def predict(features, model, tweets, vocab):
     return finalTweets
 
 
+def predict2(features, model, tweets, vocab):
+    prediction = model.predict_proba(features)
+    prediction_int = prediction[:, 1] >= 0.3  # if prediction is greater than or equal to 0.3 then 1(offensive) else 0
+    prediction_int = prediction_int.astype(np.int)
+    result = []
+    finalTweets = []
+    i = 0
+    for p in prediction_int:
+        if p == 1:
+            result.append(tweets[i][2])
+            smax = -sys.maxsize - 1
+            index = 0
+            j = 0
+            for word in tweets[i][1].split():
+                if word in vocab:
+                    wordIndex = vocab.index(word)
+                    si = model.coef_[0][wordIndex]
+                    if si > smax:
+                        smax = si
+                        index = j
+                j = j + 1
+            finalTweets.append((tweets[i][2], tweets[i][1].split()[index]))
+        i = i + 1
+
+    return finalTweets
+
+
 def main():
     train_data = get_tweet_tuples('train-tweets.csv')
     test_data = get_tweet_tuples('test-tweets.csv')
-    return run(train_data, test_data)
+    finalTweets = run(train_data, test_data)
+    pleasant_tweets = []
+    for tweet in finalTweets:
+        offensiveWord = tweet[1]
+        antonym = retrieve_antonym(offensiveWord)
+        print(offensiveWord, ",", antonym)
+        pleasant_tweets.append(tweet[0].replace(offensiveWord, antonym))
+    print(pleasant_tweets)
 
 
 if __name__ == "__main__":
-    print(main())
+    main()
