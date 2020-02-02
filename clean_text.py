@@ -9,7 +9,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 def get_tweet_tuples(csv_path: str) -> tuple:
 
-    # combine train and test sets to clean
     combi = pd.read_csv(csv_path)
 
     # remove unwanted text pattern from tweet
@@ -54,3 +53,34 @@ def get_tweet_tuples(csv_path: str) -> tuple:
             tweet_tuples.append(('dummy', combi.loc[i, "tidy_tweet"], combi.loc[i,'tweet']))
 
     return tweet_tuples
+
+# print(get_tweet_tuples("test-tweets.csv"))
+def get_tweet_tuple(tweet: str) -> str:
+    #31963,  # studiolife #aislife #requires #passion #dedication #willpower   to find #newmaterialsâ¦
+
+    combi = tweet
+
+    # remove unwanted text pattern from tweet
+    def remove_pattern(input_txt, pattern):
+        r = re.findall(pattern, input_txt)
+        for i in r:
+            input_txt = re.sub(i, '', input_txt)
+
+        return input_txt
+
+    # remove twitter handle (@user)
+    combi = re.sub("@[\w]*", "", combi)
+
+
+    # remove special characters, numbers, punctuations
+    combi = re.sub('[^A-Za-z0-9# ]+', "", combi)
+
+    # remove words < 3 letters long
+    combi = re.sub(r'\b\w{1,3}\b', "", combi)
+
+    combi_list = combi.split()
+    combi = ' '.join(combi_list)
+
+    return combi
+    #return ['dummy', combi, tweet]
+
