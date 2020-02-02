@@ -6,7 +6,7 @@ from RetrieveAntonyms import retrieve_antonym
 import numpy as np
 import sys
 import pickle
-
+from  clean_text import  *
 
 def get_basic_features(corpus):
     labels = []
@@ -18,7 +18,7 @@ def get_basic_features(corpus):
 
 
 def get_text_features(text):
-
+    text = get_tweet_tuple(text)[1]
     model = pickle.load(open('model.sav', 'rb'))
     vocabulary = get_vocabulary()
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
@@ -104,19 +104,19 @@ def predict2(features, model, tweet, vocab):
     if offensive:
         smax = -sys.maxsize - 1
         index = 0
-        j = 0
+
+        offensive_words = []
         for word in tweet.split():
+
             if word in vocab:
                 wordIndex = vocab.index(word)
                 si = model.coef_[0][wordIndex]
-                print(word, si)
-                if si > smax:
-                    smax = si
-                    index = j
-            j = j + 1
-        return tweet.split()[index]
+                if si>0:
+                    offensive_words.append(word)
 
-    return ""
+        return offensive_words
+
+
 
 def save_vocabulary(vocabulary):
 
@@ -148,7 +148,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    text = "chick fucked hottest naked bully buylling trump good sexy racist racism black white russia russian facism horrible ungrateful witch bitch "
+    # main()
+    text = "these  comments from the failed republican candidate for governor of new york in 2010, #carlpaladino."
     offensiveWord = get_text_features(text)
     print(offensiveWord)
