@@ -62,11 +62,12 @@ funny = ['aardvark', 'abacus', 'abundance', 'ache', 'acupuncture',
          ]
 def more_funny(tuple1: tuple) -> str:
     data = tuple1[0]
-    for i in range(len(tuple1) - 1):
-        foul = tuple1[i+1]
+    offensive_words = tuple1[1]
+    for i in range(len(offensive_words)):
+        foul = offensive_words[i]
         foul_replace = (' '.join(random.sample(funny, random.randint(2, 2))))
-    if foul in data:
-        foul_replace_hashtag = '#' + foul_replace.replace(" ", '_')
-        data = re.sub('#{0}'.format(foul), foul_replace_hashtag, data)
-        data = data.replace(foul, foul_replace)
+        if foul in data:
+            foul_replace_hashtag = '#' + foul_replace.replace(" ", '_')
+            data = re.sub('#{0}'.format(foul), foul_replace_hashtag, data)
+            data = data.replace(foul, foul_replace)
     return data
