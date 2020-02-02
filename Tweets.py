@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from clean_text import get_tweet_tuples
 import numpy as np
 import sys
+import pickle
 
 
 def get_basic_features(corpus):
@@ -26,9 +27,8 @@ def run(train_data, test_data):
     train_results = cross_validate(model, features, labels, cv=KFold(n_splits=10, shuffle=True, random_state=1))
     scores = train_results["test_score"]
     avg_score = sum(scores) / len(scores)
-    model.fit(features, labels)
     print("The model's average accuracy is %f" % avg_score)
-
+    model.fit(features, labels)
     neg_class_prob_sorted = model.coef_[0, :].argsort()
     pos_class_prob_sorted = (-model.coef_[0, :]).argsort()
     termsToTake = 10
@@ -36,9 +36,8 @@ def run(train_data, test_data):
     neg_indicators = [vocabulary[i] for i in pos_class_prob_sorted[:termsToTake]]
     print("The most informative terms for pos are: %s" % pos_indicators)
     print("The most informative terms for neg are: %s" % neg_indicators)
-
+    pickle.dump(model, open('model.sav', 'wb'))
     # predictions
-
     test_tweets, vocab = get_basic_features(test_data)
     vectorizer = TfidfVectorizer(stop_words='english', vocabulary=vocabulary)
     features = vectorizer.fit_transform(test_tweets)
