@@ -78,5 +78,5 @@ def get_tweet_tuple(tweet: str) -> str:
     combi_list = combi.split()
     combi = ' '.join(combi_list)
 
-    return combi
-    #return ['dummy', combi, tweet]
+    #return combi
+    return ['dummy', combi, tweet]

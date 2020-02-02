@@ -12,7 +12,8 @@ def my_form():
 @app.route('/', methods=['POST'])
 def my_form_post():
     text = request.form['text']
-    return get_tweet_tuple(text)
+    return text
+    #return get_tweet_tuple(text)
 
 # main driver function
 if __name__ == '__main__':
