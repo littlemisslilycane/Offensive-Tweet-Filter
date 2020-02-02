@@ -64,12 +64,10 @@ def predict(features, model, tweets):
         if p == 1:
             result.append(tweets[i][2])
         i = i + 1
+
     return result
 
-    print('prediction done')
 
-
-vocab = []
 train_data = get_tweet_tuples('train-tweets.csv')
 features, labels, vocab = get_features(train_data, 'train', '')
 model = build_model(features, labels, vocab)
