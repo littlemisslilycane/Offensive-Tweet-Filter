@@ -14,14 +14,14 @@
   secretKey = "yhgsd568isugfus76sdfgjs767utyyjfv"
   tweet = encodeURI(tweet)
    if(tweet.includes("#")){
-   tweet= tweet.replace("#","yhgsd568isugfus76sdfgjs767utyyjfv")
+   tweet= tweet.replace(/#/g,"yhgsd568isugfus76sdfgjs767utyyjfv")
   }
 fetch("http://127.0.0.1:5000/?tweet="+tweet+"&action=Funny", requestOptions)
   .then((response) => response.json())
   .then((result)=>{
 
   if(result['tweet'].includes("yhgsd568isugfus76sdfgjs767utyyjfv")){
-   result['tweet'] = result['tweet'].replace("yhgsd568isugfus76sdfgjs767utyyjfv","#")
+   result['tweet'] = result['tweet'].replace(/yhgsd568isugfus76sdfgjs767utyyjfv/g,"#")
   }
   $span.html("<label>"+result['tweet']+"</label>")
   })
@@ -37,13 +37,13 @@ function generateopposite() {
  secretKey = "yhgsd568isugfus76sdfgjs767utyyjfv"
   tweet = encodeURI(tweet)
    if(tweet.includes("#")){
-   tweet= tweet.replace("#","yhgsd568isugfus76sdfgjs767utyyjfv")
+   tweet= tweet.replace(/#/g,"yhgsd568isugfus76sdfgjs767utyyjfv")
   }
 fetch("http://127.0.0.1:5000/?tweet="+tweet+"&action=Opposite", requestOptions)
   .then((response) => response.json())
   .then((result)=>{
   if(result['tweet'].includes("yhgsd568isugfus76sdfgjs767utyyjfv")){
-   result['tweet'] = result['tweet'].replace("yhgsd568isugfus76sdfgjs767utyyjfv","#")
+   result['tweet'] = result['tweet'].replace(/yhgsd568isugfus76sdfgjs767utyyjfv/g,"#")
   }
 
   $span.html("<label>"+result['tweet']+"</label>")
