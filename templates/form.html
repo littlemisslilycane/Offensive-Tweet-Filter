@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'form.client.js') }}"></script>
+</head>
+<body>
+<div class="container">
+<h1>Offensive Tweet Filter</h1>
+<div method='POST' action="/" >
+    <div class="form-group">
+        <input class="col-10" id="txtinput" type="textarea" name="text">
+        <input type="submit" id="btnopposite" name="submit" value="Opposite">
+        <input type="submit" id="btnfunny" name="submit" value="Funny">
+    </div>
+</div>
+    <br /><h1>Output:</h1> <br />
+    <p id="output" class="border">
+
+    </p>
+</div>
+
+</body>
+</html>
